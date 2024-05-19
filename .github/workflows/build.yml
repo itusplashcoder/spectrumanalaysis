@@ -1,36 +1,39 @@
-# This is a basic workflow to help you get started with Actions
+name: Deploy to Databricks
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - master
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  deploy:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install databricks-cli
+
+    - name: Deploy script to Databricks
+      env:
+        DATABRICKS_HOST: ${{secrets.DBRX_INSTANCE}}
+        DATABRICKS_TOKEN: ${{secrets.DBRX_TOKEN}}
+      run: |
+        # Configure databricks-cli
+        databricks configure --token --host $DATABRICKS_HOST --token $DATABRICKS_TOKEN
+
+        # Upload your script to DBFS
+        databricks fs cp path/to/your_script.py dbfs:/path/to/your_script.py
+
+        # Run the script as a Databricks job
+        JOB_ID=$(databricks jobs create --json '{"name": "MyJob", "new_cluster": {"spark_version": "7.3.x-scala2.12", "num_workers": 2, "node_type_id": "Standard_DS3_v2"}, "spark_python_task": {"python_file": "dbfs:/path/to/your_script.py"}}' | jq -r '.job_id')
+        databricks jobs run-now --job-id $JOB_ID
