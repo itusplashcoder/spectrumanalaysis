@@ -54,29 +54,29 @@ jobs:
 
     - name: Create JSON configuration file
       run: |
-            echo '{
+        echo '{
             "name": "CnnScrapperJob",
             "new_cluster": {
-                "spark_version": "7.3.x-scala2.12",
-                "node_type_id": "i3.xlarge",
-                "num_workers": 2
+            "spark_version": "13.3.x-photon-scala2.12",
+            "node_type_id": "Standard_DS3_v2",
+            "num_workers": 8
             },
             "libraries": [
-                {
+            {
                 "pypi": {
-                    "package": "dbfs:/cnn_scrapper/requirements.txt"
+                "package": "dbfs:/cnn_scrapper/requirements.txt"
                 }
-                }
+            }
             ],
             "spark_python_task": {
-                "python_file": "dbfs:/cnn_scrapper/CnnScrapper.py"
+            "python_file": "dbfs:/cnn_scrapper/CnnScrapper.py"
             },
             "schedule": {
-                "quartz_cron_expression": "45 6 12 * * ?",
-                "timezone_id": "UTC",
-                "pause_status": "UNPAUSED"
+            "quartz_cron_expression": "45 6 12 * * ?",
+            "timezone_id": "UTC",
+            "pause_status": "UNPAUSED"
             }
-            }' > cnn_scrapper_job.json
+        }' > cnn_scrapper_job.json
 
     - name: Create the job on Databricks
       run: databricks jobs create --json-file cnn_scrapper_job.json
