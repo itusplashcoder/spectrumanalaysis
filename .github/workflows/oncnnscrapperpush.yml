@@ -39,7 +39,7 @@ jobs:
         DATABRICKS_TOKEN: ${{ secrets.DBRX_TOKEN }}
       run: |
         # Configure databricks-cli
-        databricks configure --token --host $DATABRICKS_HOST --token $DATABRICKS_TOKEN
+        databricks configure --token $DATABRICKS_TOKEN
 
         # Upload your script to DBFS
         databricks fs cp pipelines/job_units/CnnScrapper/entrypoint.py dbfs:pipelines/job_units/CnnScrapper/entrypoint.py
