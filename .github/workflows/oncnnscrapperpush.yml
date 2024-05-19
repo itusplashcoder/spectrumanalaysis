@@ -33,13 +33,50 @@ jobs:
         pytest pipelines/tests/cnnscrapper_test.py
 
     
-    - name: Deploy to Databricks
+        - name: Install Databricks CLI
+        run: pip install databricks-cli
+  
+    - name: Configure Databricks CLI
       env:
-        DATABRICKS_HOST: ${{ secrets.DBRX_INSTANCE }}
-        DATABRICKS_TOKEN: ${{ secrets.DBRX_TOKEN }}
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       run: |
-        # Configure databricks-cli
-        databricks configure --token $DATABRICKS_TOKEN
+        databricks configure --token <<EOF
+        $DATABRICKS_HOST
+        $DATABRICKS_TOKEN
+        EOF
 
-        # Upload your script to DBFS
-        databricks fs cp pipelines/job_units/CnnScrapper/entrypoint.py dbfs:pipelines/job_units/CnnScrapper/entrypoint.py
+    - name: Upload CnnScrapper directory to DBFS
+      run: |
+        databricks fs mkdirs dbfs:/cnn_scrapper
+        databricks fs cp --recursive pipelines/job_units/CnnScrapper dbfs:/cnn_scrapper
+        databricks fs cp pipelines/job_units/CnnScrapper/requirements.txt dbfs:/cnn_scrapper
+
+    - name: Create JSON configuration file
+      run: |
+            echo '{
+            "name": "CnnScrapperJob",
+            "new_cluster": {
+                "spark_version": "7.3.x-scala2.12",
+                "node_type_id": "i3.xlarge",
+                "num_workers": 2
+            },
+            "libraries": [
+                {
+                "pypi": {
+                    "package": "dbfs:/cnn_scrapper/requirements.txt"
+                }
+                }
+            ],
+            "spark_python_task": {
+                "python_file": "dbfs:/cnn_scrapper/CnnScrapper.py"
+            },
+            "schedule": {
+                "quartz_cron_expression": "45 6 12 * * ?",
+                "timezone_id": "UTC",
+                "pause_status": "UNPAUSED"
+            }
+            }' > cnn_scrapper_job.json
+
+    - name: Create the job on Databricks
+      run: databricks jobs create --json-file cnn_scrapper_job.json
