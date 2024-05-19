@@ -3,7 +3,7 @@ name: CnnScrapper Job
 on:
   push:
     paths:
-      - 'pipelines/job_units/CnnScrapper/entrypoiny.py'
+      - 'pipelines/job_units/CnnScrapper/**'
 
 jobs:
   run-cnn-scrapper:
