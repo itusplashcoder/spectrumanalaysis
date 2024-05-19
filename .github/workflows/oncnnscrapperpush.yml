@@ -50,7 +50,6 @@ jobs:
       run: |
         databricks fs mkdirs dbfs:/cnn_scrapper
         databricks fs cp --recursive pipelines/job_units/CnnScrapper dbfs:/cnn_scrapper
-        databricks fs cp requirements.txt dbfs:/cnn_scrapper
 
     - name: Create JSON configuration file
       run: |

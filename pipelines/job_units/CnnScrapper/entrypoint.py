@@ -6,4 +6,4 @@ def add(a, b):
 
 
 if __name__ == "__main__":
-    print(add(12, 4))
+    print(add(12, 14))
