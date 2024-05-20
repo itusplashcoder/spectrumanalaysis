@@ -40,7 +40,7 @@ class CnnNewsScrapper:
 
         self.__country__ = "united states"
 
-        # Read the table
+        # Read the table right now.
         news_df = self.__spark_session__.table("news")
         # Filter rows where the name contains "cnn" (case insensitive)
         cnn_news_df = news_df.filter(news_df.url.contains(self.__news_url__))
