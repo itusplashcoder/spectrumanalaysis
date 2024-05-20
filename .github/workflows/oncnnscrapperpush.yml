@@ -25,7 +25,7 @@ jobs:
 
     - name: Check lint code
       run: |
-        flake8 pipelines/job_units/CnnScrapper
+        black pipelines/job_units/CnnScrapper
 
     - name: Run tests
       run: |

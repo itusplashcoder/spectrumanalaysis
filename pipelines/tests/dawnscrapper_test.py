@@ -2,10 +2,10 @@ import unittest
 from unittest.mock import patch, MagicMock
 from pyspark.sql import SparkSession
 from bs4 import BeautifulSoup
-from job_units.DawnNewsScrapper.entrypoint import *
+from job_units.DawnScrapper.entrypoint import *
 
 
-class TestDawnNewsScrapper(unittest.TestCase):
+class TestDawnScrapper(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -19,7 +19,7 @@ class TestDawnNewsScrapper(unittest.TestCase):
 
     def setUp(self):
         pass
-        # self.scrapper = DawnNewsScrapper(self.spark)
+        # self.scrapper = DawnScrapper(self.spark)
 
     def test_generate_random_string(self):
         random_string = DawnNewsScrapper.generate_random_string(16)
@@ -30,10 +30,10 @@ class TestDawnNewsScrapper(unittest.TestCase):
         cleaned_text = DawnNewsScrapper.clean_text("Hello, World! This is a Test.")
         self.assertEqual(cleaned_text, "hello world this is a test")
 
-    # @patch('dawn_news_scrapper.DawnNewsScrapper.get_nav_links', return_value=['/test_subcategory'])
-    # @patch('dawn_news_scrapper.DawnNewsScrapper.get_article_links', return_value=['/test_article'])
-    # @patch('dawn_news_scrapper.DawnNewsScrapper.get_meta_and_title', return_value={'news_text': 'test text', 'news_title': 'test title'})
-    # @patch('dawn_news_scrapper.DawnNewsScrapper.generate_random_string', return_value='random_string')
+    # @patch('dawn_news_scrapper.DawnScrapper.get_nav_links', return_value=['/test_subcategory'])
+    # @patch('dawn_news_scrapper.DawnScrapper.get_article_links', return_value=['/test_article'])
+    # @patch('dawn_news_scrapper.DawnScrapper.get_meta_and_title', return_value={'news_text': 'test text', 'news_title': 'test title'})
+    # @patch('dawn_news_scrapper.DawnScrapper.generate_random_string', return_value='random_string')
     # def test_launch(self, mock_generate_random_string, mock_get_meta_and_title, mock_get_article_links, mock_get_nav_links):
     #     news_list = self.scrapper.launch()
     #     expected_news_list = [

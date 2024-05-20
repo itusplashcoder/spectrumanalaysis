@@ -2,10 +2,10 @@ import unittest
 from unittest.mock import patch, MagicMock
 from pyspark.sql import SparkSession
 from bs4 import BeautifulSoup
-from job_units.IndiaTVNewsScrapper.entrypoint import *
+from job_units.IndiaTVScrapper.entrypoint import *
 
 
-class TestIndiaTVNewsScrapper(unittest.TestCase):
+class TestIndiaTVScrapper(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

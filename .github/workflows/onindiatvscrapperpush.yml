@@ -25,7 +25,7 @@ jobs:
 
     - name: Check lint code
       run: |
-        flake8 pipelines/job_units/IndiaTVScrapper
+        black pipelines/job_units/IndiaTVScrapper
 
     - name: Run tests
       run: |
