@@ -45,3 +45,64 @@ def insert_into_fact_news(spark, records):
     ).withColumn("updated_at", current_timestamp())
 
     return new_records_df
+
+
+from abc import ABC, abstractmethod
+import requests
+from bs4 import BeautifulSoup
+
+class NewsScrapper(ABC):
+    def __init__(self, spark_session, news_url):
+        self._spark_session = spark_session
+        self._news_url = news_url
+        self._categories = {}
+        self._categories_id = {}
+        self.populate_categories_id()
+
+    @abstractmethod
+    def populate_categories_id(self):
+        """
+        Populate the _categories_id dictionary with category names and their corresponding IDs from a data source.
+        """
+        pass
+
+    @staticmethod
+    def generate_random_string(length=16):
+        import string
+        import random
+        return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+
+    @staticmethod
+    def clean_text(text):
+        import re
+        text = text.replace("\xa0", " ")
+        text = text.lower()
+        text = re.sub(r"[^a-z0-9\s]", "", text)
+        return text
+
+    @abstractmethod
+    def get_nav_links(self, category):
+        """
+        Retrieve navigation links for a given category from the news website.
+        """
+        pass
+
+    @abstractmethod
+    def get_article_links(self, url, html_class):
+        """
+        Fetch article links from a given URL, filtering by the specified HTML class.
+        """
+        pass
+
+    @abstractmethod
+    def get_meta_and_title(self, url):
+        """
+        Retrieve the meta information and title for a given article URL.
+        """
+        pass
+
+    def launch(self):
+        """
+        The main method to launch the scraping process, which should be implemented based on specific scraper requirements.
+        """
+        pass
