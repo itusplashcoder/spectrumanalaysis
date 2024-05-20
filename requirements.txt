@@ -28,7 +28,6 @@ pycodestyle==2.11.1
 pyflakes==3.2.0
 PyJWT==2.8.0
 pylint==3.2.1
-pyspark==3.5.1
 pytest==8.2.0
 requests==2.31.0
 six==1.16.0
@@ -39,3 +38,4 @@ tomlkit==0.12.5
 tqdm==4.66.4
 typing_extensions==4.11.0
 urllib3==2.2.1
+pyspark==3.1.2
