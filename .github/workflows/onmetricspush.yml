@@ -1,0 +1,74 @@
+name: Top 10 Keywords Metrics Job
+
+on:
+  push:
+    paths:
+      - 'pipelines/metrics/top_10_keywords/**'
+
+jobs:
+  run-metrics-top10-scrapper:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Check lint code
+      run: |
+        flake8 pipelines/metrics/top_10_keywords
+
+    - name: Run tests
+      run: |
+        pip install pytest
+        pytest pipelines/tests/metrics_test.py
+
+    
+    - name: Install Databricks CLI
+      run: pip install databricks-cli
+  
+    - name: Configure Databricks CLI
+      env:
+        DATABRICKS_HOST: ${{ secrets.DBRX_INSTANCE }}
+        DATABRICKS_TOKEN: ${{ secrets.DBRX_TOKEN }}
+      run: |
+        databricks configure --token <<EOF
+        $DATABRICKS_HOST
+        $DATABRICKS_TOKEN
+        EOF
+
+    - name: Upload Top 10 Keywords Metrics directory to DBFS
+      run: |
+        databricks fs mkdirs dbfs:/metrics/top_10_keywords
+        databricks fs cp --recursive pipelines/metrics/top_10_keywords dbfs:/metrics/top_10_keywords
+
+    - name: Create JSON configuration file
+      run: |
+        echo '{
+            "name": "Top10KeywordsMetricsJob",
+            "new_cluster": {
+            "spark_version": "13.3.x-photon-scala2.12",
+            "node_type_id": "Standard_DS3_v2",
+            "num_workers": 8
+            },
+            "spark_python_task": {
+            "python_file": "dbfs:/metrics/top_10_keywords/entrypoint.py
+            },
+            "schedule": {
+            "quartz_cron_expression": "45 6 14 * * ?",
+            "timezone_id": "UTC",
+            "pause_status": "UNPAUSED"
+            }
+        }' > top_10_keywords_metrics.json
+
+    - name: Create the job on Databricks
+      run: databricks jobs create --json-file top_10_keywords_metrics.json
