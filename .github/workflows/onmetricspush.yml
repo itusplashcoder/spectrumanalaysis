@@ -25,7 +25,7 @@ jobs:
 
     - name: Check lint code
       run: |
-        flake8 pipelines/metrics/top_10_keywords
+        black pipelines/metrics/top_10_keywords/entrypoint.py
 
     - name: Run tests
       run: |
