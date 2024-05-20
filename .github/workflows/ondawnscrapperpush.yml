@@ -1,0 +1,81 @@
+name: DawnScrapper Job
+
+on:
+  push:
+    paths:
+      - 'pipelines/job_units/DawnScrapper/**'
+
+jobs:
+  run-dawn-scrapper:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Check lint code
+      run: |
+        flake8 pipelines/job_units/DawnScrapper
+
+    - name: Run tests
+      run: |
+        pip install pytest
+        pytest pipelines/tests/dawnscrapper_test.py
+
+    
+    - name: Install Databricks CLI
+      run: pip install databricks-cli
+  
+    - name: Configure Databricks CLI
+      env:
+        DATABRICKS_HOST: ${{ secrets.DBRX_INSTANCE }}
+        DATABRICKS_TOKEN: ${{ secrets.DBRX_TOKEN }}
+      run: |
+        databricks configure --token <<EOF
+        $DATABRICKS_HOST
+        $DATABRICKS_TOKEN
+        EOF
+
+    - name: Upload DawnScrapper directory to DBFS
+      run: |
+        databricks fs mkdirs dbfs:/dawn_scrapper
+        databricks fs cp --recursive pipelines/job_units/DawnScrapper dbfs:/dawn_scrapper
+
+    - name: Create JSON configuration file
+      run: |
+        echo '{
+            "name": "DawnScrapperJob",
+            "new_cluster": {
+            "spark_version": "13.3.x-photon-scala2.12",
+            "node_type_id": "Standard_DS3_v2",
+            "num_workers": 8
+            },
+            "libraries": [
+            {
+                "pypi": {
+                "package": "dbfs:/dawn_scrapper/requirements.txt"
+                }
+            }
+            ],
+            "spark_python_task": {
+            "python_file": "dbfs:/dawn_scrapper/DawnScrapper.py"
+            },
+            "schedule": {
+            "quartz_cron_expression": "30 3 10 * * ?",
+            "timezone_id": "UTC",
+            "pause_status": "UNPAUSED"
+            }
+        }' > dawn_scrapper_job.json
+
+    - name: Create the job on Databricks
+      run: databricks jobs create --json-file dawn_scrapper_job.json
