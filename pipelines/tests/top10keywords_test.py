@@ -27,7 +27,12 @@ class TopKeywordsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.spark = (
-            SparkSession.builder.master("local[1]").appName("Test").getOrCreate()
+            SparkSession.builder.master("local[1]")
+            .appName("Test")
+            .config("spark.jars.packages", "io.delta:delta-core_2.12:1.2.1")
+            .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+            .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+            .getOrCreate()
         )
 
     @classmethod
