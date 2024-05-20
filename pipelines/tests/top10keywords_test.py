@@ -6,9 +6,8 @@ from datetime import datetime
 from metrics.top_10_keywords.entrypoint import (
     top_10_keywords_by_country,
     top_10_keywords_by_category,
-)  # Replace with actual module name
+)
 
-# Define schema for the fact table
 FACT_NEWS_SCHEMA = StructType(
     [
         StructField("id", StringType(), False),

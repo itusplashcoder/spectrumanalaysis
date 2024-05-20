@@ -30,7 +30,7 @@ jobs:
     - name: Run tests
       run: |
         pip install pytest
-        pytest pipelines/tests/metrics_test.py
+        pytest pipelines/tests/top10keywords_test.py
 
     
     - name: Install Databricks CLI
