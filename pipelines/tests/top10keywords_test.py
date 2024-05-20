@@ -39,7 +39,7 @@ class TopKeywordsTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
-        #cls.spark.stop()
+        # cls.spark.stop()
 
     def test_top_10_keywords_by_country(self):
         # Mock data

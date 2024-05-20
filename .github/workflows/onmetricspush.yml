@@ -54,21 +54,22 @@ jobs:
     - name: Create JSON configuration file
       run: |
         echo '{
-            "name": "Top10KeywordsMetricsJob",
-            "new_cluster": {
-            "spark_version": "13.3.x-photon-scala2.12",
-            "node_type_id": "Standard_DS3_v2",
-            "num_workers": 8
-            },
-            "spark_python_task": {
-            "python_file": "dbfs:/metrics/top_10_keywords/entrypoint.py
-            },
-            "schedule": {
-            "quartz_cron_expression": "45 6 14 * * ?",
-            "timezone_id": "UTC",
-            "pause_status": "UNPAUSED"
-            }
+          "name": "Top10KeywordsMetricsJob",
+          "new_cluster": {
+              "spark_version": "13.3.x-photon-scala2.12",
+              "node_type_id": "Standard_DS3_v2",
+              "num_workers": 8
+          },
+          "spark_python_task": {
+              "python_file": "dbfs:/metrics/top_10_keywords/entrypoint.py"
+          },
+          "schedule": {
+              "quartz_cron_expression": "45 6 14 * * ?",
+              "timezone_id": "UTC",
+              "pause_status": "UNPAUSED"
+          }
         }' > top_10_keywords_metrics.json
+      
 
     - name: Create the job on Databricks
       run: databricks jobs create --json-file top_10_keywords_metrics.json
