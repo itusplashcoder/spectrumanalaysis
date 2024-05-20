@@ -61,7 +61,6 @@ def top_10_keywords_by_category(spark):
 
 
 if __name__ == "__main__":
-    # Create session
     spark = SparkSession.builder.appName("Top10Keywords").getOrCreate()
     top_10_keywords_by_category(spark)
     top_10_keywords_by_country(spark)
